@@ -1,8 +1,8 @@
-// Use your NASA API key for this project.
+// Put your NASA API key here for this app.
 const NASA_API_KEY = 'mNeUp2i6t8wxmRoX2bK3fyl5xmd347RcjGwvVcIB';
 const APOD_URL = 'https://api.nasa.gov/planetary/apod';
 
-// Mock APOD data used if the API is unavailable for testing.
+// Fallback APOD sample used when the live API cannot be reached.
 const MOCK_APOD_RESPONSE = [
 	{
 		date: '2025-01-15',
@@ -13,34 +13,34 @@ const MOCK_APOD_RESPONSE = [
 	},
 ];
 
-// Store facts in an array so we can randomly pick one each refresh.
+// Keep facts in a list so one can be chosen at random each time.
 const spaceFacts = [
-	'It would take nine years to walk to the Moon.',
-	'Mars is called the Red Planet because iron oxide (rust) gives its surface a red color.',
-	"Mercury's temperature ranges from about -280 F at night to 800 F during the day.",
-	'If you can see the Andromeda Galaxy with your naked eye, you are looking about 14.7 billion billion miles away.',
-	'The Sun is around 400 times wider than the Moon and about 400 times farther away, so they look similar in size from Earth.',
-	'Jupiter is the largest planet and could fit the other seven planets inside about 70% of its volume.',
-	'Stars do not twinkle until their light passes through Earth\'s atmosphere.',
-	'If Earth were the size of a tennis ball, the Sun would be about 24 feet across and about half a mile away.',
-	'Of the 9,113 official named features on the Moon, only 421 are not craters.',
-	'Driving at 70 mph to the nearest star would take more than 356 billion years.',
-	"Neptune's moon Triton is the coldest known object in our solar system, averaging about -391 F.",
-	"When the Moon is at first or last quarter, it is only about 10% as bright as the full Moon.",
-	'The earliest stars likely formed about 200 million years after the Big Bang.',
-	"Jupiter's Great Red Spot is an anticyclonic storm near 22 degrees south latitude and rotates roughly every six days.",
-	'If you could jump into a tunnel through Earth, you would reach the other side in about 42 minutes and 12 seconds.',
-	"To escape Earth's gravity, a spacecraft must travel more than 25,008 mph (about Mach 33).",
-	'Light from a star 31.7 light-years away takes about 1 billion seconds to reach Earth.',
-	'The International Space Station orbits Earth roughly every 90 minutes.',
-	"Venus is the hottest planet, with cloud-trapped heat pushing temperatures to about 863 F.",
-	'If the Milky Way were one tennis ball wide, the Andromeda Galaxy would be around 5.6 feet away on that same scale.',
+  "Mars looks red because its dusty surface contains iron oxide, which is basically rust.",
+	"On Mercury, temperatures can swing from around -280 F at night to near 800 F in daylight.",
+	'When you spot Andromeda with the naked eye, you are seeing light from about 14.7 quintillion miles away.',
+	'The Sun is about 400 times wider than the Moon and also about 400 times farther away, which is why they appear close in size in our sky.',
+	"Jupiter is so large that all seven other planets could fit inside it with room to spare.",
+  "Triton, Neptune's largest moon, is one of the coldest known worlds at around -391 F.",
+	"At first or last quarter, the Moon is only about one-tenth as bright as a full Moon.",
+  'Light that takes 1 billion seconds to arrive comes from about 31.7 light-years away.',
+	'The International Space Station circles Earth in about an hour and a half.',
+	"Venus is the hottest planet in our solar system, with average surface temperatures near 863 F.",
+	'If the Milky Way were scaled to one tennis ball, Andromeda would be about 5.6 feet away on that same model.',
+	'Walking nonstop to the Moon at a normal pace would take roughly nine years.',
+	'The first generation of stars probably formed around 200 million years after the Big Bang.',
+	"Jupiter's Great Red Spot is a giant high-pressure storm near 22 degrees south that spins about once every six days.",
+	"In a straight tunnel through Earth, the trip from one side to the other would take about 42 minutes.",
+	"A spacecraft needs to exceed about 25,000 mph to escape Earth's gravity without additional thrust.",
+	"Stars seem to twinkle because Earth's atmosphere bends their light.",
+	'If Earth were shrunk to a tennis ball, the Sun would be about 24 feet wide and roughly half a mile away.',
+	'Most named lunar surface features are craters; only a small fraction have other shapes.',
+	'Driving 70 mph to the nearest star beyond the Sun would still take over 356 billion years.',
 ];
 
-// Store current APOD items for modal access.
+// Save the current APOD records so the modal can open them.
 let currentApodItems = [];
 
-// Wait for the page to be ready before reading DOM elements.
+// Wait until the document is ready before querying page elements.
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
@@ -60,15 +60,15 @@ function initializeApp() {
 		return;
 	}
 
-	// Set date defaults and valid range using starter utility file.
+	// Apply default dates and allowed limits using the helper file.
 	setupDateInputs(startInput, endInput);
 
-	// Update gallery when the user clicks the button.
+	// Refresh the gallery after the user clicks the button.
 	getImagesButton.addEventListener('click', () => {
 		fetchApodImages(startInput.value, endInput.value, gallery);
 	});
 
-	// Setup modal controls.
+	// Configure modal open/close controls.
 	closeModalButton.addEventListener('click', closeModal);
 	apodModal.addEventListener('click', (event) => {
 		if (event.target === apodModal) {
@@ -76,17 +76,17 @@ function initializeApp() {
 		}
 	});
 
-	// Close modal with Escape key.
+	// Let users close the modal by pressing Escape.
 	document.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape' && !apodModal.classList.contains('hidden')) {
 			closeModal();
 		}
 	});
 
-	// Show random space fact on page load.
+	// Display one random space fact when the page loads.
 	showRandomSpaceFact();
 
-	// Load NASA's latest available date, then display a 9-day default gallery.
+	// Pull NASA's latest date, then load the default 9-day gallery.
 	setDefaultRangeFromApi(startInput, endInput)
 		.finally(() => {
 			fetchApodImages(startInput.value, endInput.value, gallery);
@@ -123,18 +123,18 @@ async function fetchApodImages(startDate, endDate, gallery) {
 			data = MOCK_APOD_RESPONSE;
 		}
 
-		// Required by the task: verify API/mock payload in the console.
+		// Assignment check: print API or mock payload in the console.
 		console.log(data);
 
 		const apodItems = Array.isArray(data) ? data : [data];
 
-		// Keep only items that match the expected APOD JSON shape.
+		// Keep only entries that match the expected APOD JSON fields.
 		const validApodItems = apodItems.filter(isValidApodItem);
 
-		// Store full items for modal display.
+		// Keep full entries so the modal can show all details.
 		currentApodItems = validApodItems;
 
-		// Build a clean image-only list so rendering is reliable.
+		// Build an image-only list to keep gallery rendering predictable.
 		const imageItems = validApodItems
 			.filter((item) => item.media_type === 'image' && item.url)
 			.map((item) => ({
@@ -190,7 +190,7 @@ async function setDefaultRangeFromApi(startInput, endInput) {
 		const startDate = new Date(latestDate);
 		startDate.setDate(startDate.getDate() - 8);
 
-		// Keep start date inside the allowed NASA APOD range.
+		// Make sure the start date stays within NASA's valid APOD range.
 		const minDate = new Date(`${startInput.min}T00:00:00`);
 		if (startDate < minDate) {
 			startInput.value = formatInputDate(minDate);
@@ -210,7 +210,7 @@ function renderGallery(gallery, items) {
 		return;
 	}
 
-	// Show newest images first.
+	// Display the newest images at the top.
 	const sortedItems = [...items].sort((a, b) => new Date(b.date) - new Date(a.date));
 
 	const cardsHtml = sortedItems
